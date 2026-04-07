@@ -1,0 +1,34 @@
+@startuml
+left to right direction
+
+actor Visitor
+actor "Authenticated User" as User
+
+rectangle MyTodoList {
+  usecase "View home page" as UC1
+  usecase "View sample tasks" as UC2
+  usecase "Login" as UC3
+
+  usecase "View task list" as UC4
+  usecase "Search tasks" as UC5
+  usecase "Create task" as UC6
+  usecase "Update task" as UC7
+  usecase "Delete task" as UC8
+  usecase "View tasks by category" as UC9
+  usecase "View tasks by status" as UC10
+  usecase "Create an account" as UC11
+}
+
+Visitor --> UC1
+Visitor --> UC2
+Visitor --> UC3
+Visitor --> UC11
+
+User --> UC4
+User --> UC5
+User --> UC6
+User --> UC7
+User --> UC8
+User --> UC9
+User --> UC10
+@enduml
