@@ -1,0 +1,25 @@
+@startuml
+actor "Authenticated User" as User
+boundary "Task Form" as View
+control "TaskController" as Controller
+control "TaskService" as Service
+entity "TaskRepository" as Repository
+database "Database" as DB
+
+User -> View : Fill task form
+User -> Controller : Submit task data (POST /tasks/save)
+Controller -> Controller : Validate form data
+alt validation errors
+    Controller --> View : Return form with errors
+    View --> User : Show validation messages
+else validation errors
+    Controller -> Service : createTask(taskData)
+    Service -> Repository : save(task)
+    Repository -> DB : INSERT task
+    DB --> Repository : saved task
+    Repository --> Service : task
+    Service --> Controller : task created
+    Controller --> View : Redirect to task list
+    View --> User : Display updated task list
+end
+@enduml
