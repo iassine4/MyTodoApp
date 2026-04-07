@@ -17,6 +17,9 @@ rectangle MyTodoList {
   usecase "View tasks by category" as UC9
   usecase "View tasks by status" as UC10
   usecase "Create an account" as UC11
+  usecase "Assign category to task" as UC12
+  usecase "Change task category" as UC13
+  usecase "Organize tasks by status\n(ToDo / In Progress / Done)" as UC14
 }
 
 Visitor --> UC1
@@ -31,4 +34,8 @@ User --> UC7
 User --> UC8
 User --> UC9
 User --> UC10
+
+UC6 <.. UC12 : <<extend>>
+UC7 <.. UC13 : <<extend>>
+UC4 <.. UC14 : <<extend>>
 @enduml
