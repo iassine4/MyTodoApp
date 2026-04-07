@@ -1,0 +1,33 @@
+@startuml
+class Task {
+  - id : Long
+  - title : String
+  - dueDate : LocalDate
+  - description : String
+  - status : TaskStatus
+}
+
+class Category {
+  - id : Long
+  - name : String
+}
+
+class UserAccount {
+  - id : Long
+  - username : String
+  - password : String
+  - role : String
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
+UserAccount "1" -- "0..*" Task : owns
+Category "1" -- "0..*" Task : classifies
+Task "0..*" --> "0..1" Category : belongs to
+Task "0..*" --> "1" UserAccount : created by
+Task "1" --> "1" TaskStatus : to have
+@enduml
