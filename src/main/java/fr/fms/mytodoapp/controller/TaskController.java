@@ -1,5 +1,6 @@
 package fr.fms.mytodoapp.controller;
 
+import fr.fms.mytodoapp.web.form.TaskForm;
 import fr.fms.mytodoapp.entity.Task;
 import fr.fms.mytodoapp.enums.TaskStatus;
 import fr.fms.mytodoapp.service.TaskService;
@@ -25,6 +26,14 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 @RequestMapping("/tasks")
 public class TaskController {
+
+    private static final String TASK_FORM_VIEW = "tasks/form";
+    private static final String STATUSES_ATTRIBUTE = "statuses";
+    private static final String FORM_ACTION_ATTRIBUTE = "formAction";
+    private static final String PAGE_TITLE_ATTRIBUTE = "pageTitle";
+    private static final String REDIRECT_TASKS = "redirect:/tasks";
+    private static final String CREATE_PAGE_TITLE = "Créer une tâche";
+    private static final String EDIT_PAGE_TITLE = "Modifier une tâche";
 
     /**
      * Service métier utilisé pour gérer les tâches.
@@ -77,40 +86,42 @@ public class TaskController {
      */
     @GetMapping("/create")
     public String showCreateForm(Model model) {
-        Task task = new Task();
-        task.setStatus(TaskStatus.TODO);
+        TaskForm taskForm = new TaskForm();
+        taskForm.setStatus(TaskStatus.TODO);
 
-        model.addAttribute("task", task);
-        model.addAttribute("statuses", TaskStatus.values());
-        model.addAttribute("pageTitle", "Créer une tâche");
-        model.addAttribute("formAction", "/tasks/save");
+        model.addAttribute("task", taskForm);
+        model.addAttribute(STATUSES_ATTRIBUTE, TaskStatus.values());
+        model.addAttribute(PAGE_TITLE_ATTRIBUTE, CREATE_PAGE_TITLE);
+        model.addAttribute(FORM_ACTION_ATTRIBUTE, "/tasks/save");
 
-        return "tasks/form";
+        return TASK_FORM_VIEW;
     }
 
     /**
      * Enregistre une nouvelle tâche après validation du formulaire.
      *
-     * @param task tâche saisie dans le formulaire
+     * @param taskForm données saisies dans le formulaire
      * @param bindingResult contient les erreurs de validation éventuelles
      * @param model modèle transmis à la vue
      * @return redirection vers la liste ou retour au formulaire en cas d'erreur
      */
     @PostMapping("/save")
     public String saveTask(
-            @Valid @ModelAttribute("task") Task task,
+            @Valid @ModelAttribute("task") TaskForm taskForm,
             BindingResult bindingResult,
             Model model
     ) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("statuses", TaskStatus.values());
-            model.addAttribute("pageTitle", "Créer une tâche");
-            model.addAttribute("formAction", "/tasks/save");
-            return "tasks/form";
+            model.addAttribute(STATUSES_ATTRIBUTE, TaskStatus.values());
+            model.addAttribute(PAGE_TITLE_ATTRIBUTE, CREATE_PAGE_TITLE);
+            model.addAttribute(FORM_ACTION_ATTRIBUTE, "/tasks/save");
+            return TASK_FORM_VIEW;
         }
 
+        Task task = mapToTask(taskForm);
         taskService.saveTask(task);
-        return "redirect:/tasks";
+
+        return REDIRECT_TASKS;
     }
 
     /**
@@ -123,20 +134,21 @@ public class TaskController {
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model) {
         Task task = taskService.getTaskById(id);
+        TaskForm taskForm = mapToTaskForm(task);
 
-        model.addAttribute("task", task);
-        model.addAttribute("statuses", TaskStatus.values());
-        model.addAttribute("pageTitle", "Modifier une tâche");
-        model.addAttribute("formAction", "/tasks/update/" + id);
+        model.addAttribute("task", taskForm);
+        model.addAttribute(STATUSES_ATTRIBUTE, TaskStatus.values());
+        model.addAttribute(PAGE_TITLE_ATTRIBUTE, EDIT_PAGE_TITLE);
+        model.addAttribute(FORM_ACTION_ATTRIBUTE, "/tasks/update/" + id);
 
-        return "tasks/form";
+        return TASK_FORM_VIEW;
     }
 
     /**
      * Met à jour une tâche après validation du formulaire.
      *
      * @param id identifiant de la tâche à modifier
-     * @param task données mises à jour
+     * @param taskForm données mises à jour
      * @param bindingResult contient les erreurs de validation éventuelles
      * @param model modèle transmis à la vue
      * @return redirection vers la liste ou retour au formulaire en cas d'erreur
@@ -144,19 +156,21 @@ public class TaskController {
     @PostMapping("/update/{id}")
     public String updateTask(
             @PathVariable Long id,
-            @Valid @ModelAttribute("task") Task task,
+            @Valid @ModelAttribute("task") TaskForm taskForm,
             BindingResult bindingResult,
             Model model
     ) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("statuses", TaskStatus.values());
-            model.addAttribute("pageTitle", "Modifier une tâche");
-            model.addAttribute("formAction", "/tasks/update/" + id);
-            return "tasks/form";
+            model.addAttribute(STATUSES_ATTRIBUTE, TaskStatus.values());
+            model.addAttribute(PAGE_TITLE_ATTRIBUTE, EDIT_PAGE_TITLE);
+            model.addAttribute(FORM_ACTION_ATTRIBUTE, "/tasks/update/" + id);
+            return TASK_FORM_VIEW;
         }
 
+        Task task = mapToTask(taskForm);
         taskService.updateTask(id, task);
-        return "redirect:/tasks";
+
+        return REDIRECT_TASKS;
     }
 
     /**
@@ -168,6 +182,42 @@ public class TaskController {
     @GetMapping("/delete/{id}")
     public String deleteTask(@PathVariable Long id) {
         taskService.deleteTaskById(id);
-        return "redirect:/tasks";
+        return REDIRECT_TASKS;
+    }
+
+    /**
+     * Convertit un objet de formulaire en entité Task.
+     *
+     * @param taskForm les données du formulaire
+     * @return une entité Task
+     */
+    private Task mapToTask(TaskForm taskForm) {
+        Task task = new Task();
+        task.setTitle(taskForm.getTitle());
+        task.setDescription(taskForm.getDescription());
+        task.setDueDate(taskForm.getDueDate());
+        task.setStatus(taskForm.getStatus());
+
+        return task;
+    }
+
+    /**
+     * Convertit une entité Task en objet de formulaire.
+     *
+     * @param task la tâche source
+     * @return un objet TaskForm
+     */
+    private TaskForm mapToTaskForm(Task task) {
+        TaskForm taskForm = new TaskForm();
+        taskForm.setTitle(task.getTitle());
+        taskForm.setDescription(task.getDescription());
+        taskForm.setDueDate(task.getDueDate());
+        taskForm.setStatus(task.getStatus());
+
+        if (task.getCategory() != null) {
+            taskForm.setCategoryId(task.getCategory().getId());
+        }
+
+        return taskForm;
     }
 }
