@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${pageTitle}">Formulaire tâche</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--
+        Lien vers ton fichier CSS local.
+        Il faudra créer /static/css/style.css si ce n'est pas déjà fait.
+    -->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="container">
+    <!-- Titre dynamique : création ou modification -->
+    <h1 th:text="${pageTitle}">Créer une tâche</h1>
+
+    <!-- Lien de retour vers la liste -->
+    <p>
+        <a th:href="@{/tasks}">Retour à la liste des tâches</a>
+    </p>
+
+    <!--
+        Message global si le formulaire contient des erreurs.
+        #fields s'appuie sur l'objet déclaré dans th:object.
+    -->
+    <div th:if="${#fields.hasAnyErrors()}" class="alert alert-error">
+        <p>Le formulaire contient des erreurs. Merci de corriger les champs indiqués.</p>
+    </div>
+
+    <!--
+        Formulaire lié à l'objet "task" envoyé par le contrôleur.
+        On utilise th:attr pour injecter dynamiquement l'action du formulaire.
+    -->
+    <form th:object="${task}" th:attr="action=${formAction}" method="post">
+
+        <!--
+            Jeton CSRF utile si Spring Security est activé.
+            Il sera automatiquement disponible dans le modèle si nécessaire.
+        -->
+        <input type="hidden"
+               th:if="${_csrf != null}"
+               th:name="${_csrf.parameterName}"
+               th:value="${_csrf.token}">
+
+        <!-- Champ : title -->
+        <div class="form-group">
+            <label for="title">Titre</label>
+            <input id="title"
+                   type="text"
+                   th:field="*{title}"
+                   placeholder="Exemple : Préparer le diagramme UML">
+
+            <!-- Message d'erreur du champ title -->
+            <small class="error"
+                   th:if="${#fields.hasErrors('title')}"
+                   th:errors="*{title}">
+                Erreur sur le titre
+            </small>
+        </div>
+
+        <!-- Champ : description -->
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description"
+                      th:field="*{description}"
+                      rows="5"
+                      placeholder="Décris la tâche ici..."></textarea>
+
+            <!-- Message d'erreur du champ description -->
+            <small class="error"
+                   th:if="${#fields.hasErrors('description')}"
+                   th:errors="*{description}">
+                Erreur sur la description
+            </small>
+        </div>
+
+        <!-- Champ : dueDate -->
+        <div class="form-group">
+            <label for="dueDate">Date d'échéance</label>
+            <input id="dueDate"
+                   type="date"
+                   th:field="*{dueDate}">
+
+            <!-- Message d'erreur du champ dueDate -->
+            <small class="error"
+                   th:if="${#fields.hasErrors('dueDate')}"
+                   th:errors="*{dueDate}">
+                Erreur sur la date d'échéance
+            </small>
+        </div>
+
+        <!-- Champ : status -->
+        <div class="form-group">
+            <label for="status">Statut</label>
+            <select id="status" th:field="*{status}">
+                <option value="">-- Choisir un statut --</option>
+                <option th:each="statusValue : ${statuses}"
+                        th:value="${statusValue}"
+                        th:text="${statusValue}">
+                    TODO
+                </option>
+            </select>
+
+            <!-- Message d'erreur du champ status -->
+            <small class="error"
+                   th:if="${#fields.hasErrors('status')}"
+                   th:errors="*{status}">
+                Erreur sur le statut
+            </small>
+        </div>
+
+        <!--
+            Plus tard, ajouter categoryId ici
+            quand le contrôleur enverra aussi la liste des catégories.
+        -->
+        <!--
+        <div class="form-group">
+            <label for="categoryId">Catégorie</label>
+            <select id="categoryId" th:field="*{categoryId}">
+                <option value="">-- Aucune catégorie --</option>
+                <option th:each="category : ${categories}"
+                        th:value="${category.id}"
+                        th:text="${category.name}">
+                    Catégorie
+                </option>
+            </select>
+        </div>
+        -->
+
+        <!-- Boutons d'action -->
+        <div class="form-actions">
+            <button type="submit">Enregistrer</button>
+            <a th:href="@{/tasks}">Annuler</a>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>
