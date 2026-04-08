@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des tâches</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Feuille de style locale -->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="container">
+
+    <!-- Titre principal -->
+    <h1>Liste des tâches</h1>
+
+    <!-- Barre d'actions -->
+    <div class="toolbar">
+        <a class="button" th:href="@{/tasks/create}">Créer une nouvelle tâche</a>
+    </div>
+
+    <!-- Formulaire de recherche -->
+    <form th:action="@{/tasks}" method="get" class="search-form">
+        <div class="form-group-inline">
+            <label for="keyword">Recherche</label>
+            <input id="keyword"
+                   type="text"
+                   name="keyword"
+                   th:value="${keyword}"
+                   placeholder="Rechercher par titre ou description">
+
+            <!-- On garde la taille de page lors de la recherche -->
+            <input type="hidden" name="size" th:value="${pageSize}">
+
+            <button type="submit">Rechercher</button>
+            <a th:href="@{/tasks}">Réinitialiser</a>
+        </div>
+    </form>
+
+    <!-- Message si aucune tâche -->
+    <div th:if="${#lists.isEmpty(tasks)}" class="alert alert-info">
+        <p>Aucune tâche trouvée.</p>
+    </div>
+
+    <!-- Tableau des tâches -->
+    <table th:if="${!#lists.isEmpty(tasks)}" class="task-table">
+        <thead>
+        <tr>
+            <th>Titre</th>
+            <th>Description</th>
+            <th>Date d'échéance</th>
+            <th>Statut</th>
+            <th>Catégorie</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr th:each="task : ${tasks}">
+            <!-- Titre -->
+            <td th:text="${task.title}">Titre</td>
+
+            <!-- Description -->
+            <td th:text="${task.description} ?: 'Aucune description'">Description</td>
+
+            <!-- Date -->
+            <td th:text="${task.dueDate}">2026-04-08</td>
+
+            <!-- Statut -->
+            <td>
+                <span th:text="${task.status}">TODO</span>
+            </td>
+
+            <!-- Catégorie -->
+            <td th:text="${task.category != null ? task.category.name : 'Aucune catégorie'}">
+                Aucune catégorie
+            </td>
+
+            <!-- Actions -->
+            <td class="actions">
+                <a th:href="@{'/tasks/edit/' + ${task.id}}">Modifier</a>
+
+                <a th:href="@{'/tasks/delete/' + ${task.id}}"
+                   onclick="return confirm('Voulez-vous vraiment supprimer cette tâche ?');">
+                    Supprimer
+                </a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <div th:if="${totalPages > 0}" class="pagination">
+
+        <!-- Bouton page précédente -->
+        <a th:if="${currentPage > 0}"
+           th:href="@{/tasks(page=${currentPage - 1}, size=${pageSize}, keyword=${keyword})}">
+            Précédent
+        </a>
+
+        <!-- Numéros de pages -->
+        <span th:each="pageNumber : ${#numbers.sequence(0, totalPages - 1)}">
+            <a th:if="${pageNumber != currentPage}"
+               th:href="@{/tasks(page=${pageNumber}, size=${pageSize}, keyword=${keyword})}"
+               th:text="${pageNumber + 1}">
+                1
+            </a>
+
+            <span th:if="${pageNumber == currentPage}"
+                  th:text="${pageNumber + 1}"
+                  class="current-page">
+                1
+            </span>
+        </span>
+
+        <!-- Bouton page suivante -->
+        <a th:if="${currentPage < totalPages - 1}"
+           th:href="@{/tasks(page=${currentPage + 1}, size=${pageSize}, keyword=${keyword})}">
+            Suivant
+        </a>
+    </div>
+
+</div>
+
+</body>
+</html>
