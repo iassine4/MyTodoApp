@@ -15,22 +15,11 @@ import java.util.List;
 
 /**
  * Implémentation des opérations métier liées à la gestion des tâches.
- *
- * <p>Cette classe appartient à la couche service.</p>
- *
- * <p>Elle fait le lien entre les contrôleurs web et le repository
- * d'accès aux données.</p>
- *
- * @author Yassine ZRIBA
- * @version 1.0
  */
 @Service
 @Transactional
 public class TaskServiceImpl implements TaskService {
 
-    /**
-     * Repository utilisé pour accéder aux données des tâches.
-     */
     private final TaskRepository taskRepository;
 
     /**
@@ -55,10 +44,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     /**
-     * Recherche les tâches à partir d'un mot-clé
-     * dans le titre ou la description.
-     *
-     * <p>Si le mot-clé est vide, toutes les tâches sont retournées.</p>
+     * Recherche les tâches à partir d'un mot-clé dans le titre ou la description.
      *
      * @param keyword le mot-clé recherché
      * @param pageable les informations de pagination
@@ -85,19 +71,15 @@ public class TaskServiceImpl implements TaskService {
      *
      * @param id l'identifiant de la tâche
      * @return la tâche trouvée
-     * @throws ResourceNotFoundException si aucune tâche n'est trouvée
      */
     @Override
     @Transactional(readOnly = true)
     public Task getTaskById(Long id) {
-        return taskRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + id));
+        return findTaskOrThrow(id);
     }
 
     /**
      * Enregistre une nouvelle tâche.
-     *
-     * <p>Si aucun statut n'est fourni, le statut TO DO est appliqué par défaut.</p>
      *
      * @param task la tâche à enregistrer
      * @return la tâche enregistrée
@@ -117,11 +99,10 @@ public class TaskServiceImpl implements TaskService {
      * @param id l'identifiant de la tâche à modifier
      * @param updatedTask les nouvelles données
      * @return la tâche mise à jour
-     * @throws ResourceNotFoundException si la tâche n'existe pas
      */
     @Override
     public Task updateTask(Long id, Task updatedTask) {
-        Task existingTask = getTaskById(id);
+        Task existingTask = findTaskOrThrow(id);
 
         existingTask.setTitle(updatedTask.getTitle());
         existingTask.setDescription(updatedTask.getDescription());
@@ -136,11 +117,10 @@ public class TaskServiceImpl implements TaskService {
      * Supprime une tâche à partir de son identifiant.
      *
      * @param id l'identifiant de la tâche à supprimer
-     * @throws ResourceNotFoundException si la tâche n'existe pas
      */
     @Override
     public void deleteTaskById(Long id) {
-        Task task = getTaskById(id);
+        Task task = findTaskOrThrow(id);
         taskRepository.delete(task);
     }
 
@@ -177,5 +157,16 @@ public class TaskServiceImpl implements TaskService {
     @Transactional(readOnly = true)
     public List<Task> getAllTasksOrderedByDueDate() {
         return taskRepository.findAllByOrderByDueDateAsc();
+    }
+
+    /**
+     * Recherche une tâche par son identifiant ou lève une exception si elle n'existe pas.
+     *
+     * @param id l'identifiant recherché
+     * @return la tâche trouvée
+     */
+    private Task findTaskOrThrow(Long id) {
+        return taskRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + id));
     }
 }
