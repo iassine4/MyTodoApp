@@ -62,7 +62,7 @@
                 <td th:text="${task.title}">Titre</td>
                 <td th:text="${task.description} ?: 'Aucune description'">Description</td>
                 <td th:text="${task.dueDate}">2026-04-08</td>
-                <td th:text="${task.status}">TODO</td>
+                <td th:text="${task.status.label}">À faire</td>
                 <td th:text="${task.category != null ? task.category.name : 'Aucune catégorie'}">
                     Aucune catégorie
                 </td>

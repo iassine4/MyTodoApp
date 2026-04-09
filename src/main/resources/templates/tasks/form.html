@@ -84,8 +84,8 @@
                 <option value="">-- Choisir un statut --</option>
                 <option th:each="statusValue : ${statuses}"
                         th:value="${statusValue}"
-                        th:text="${statusValue}">
-                    TODO
+                        th:text="${statusValue.label}">
+                    À faire
                 </option>
             </select>
 
