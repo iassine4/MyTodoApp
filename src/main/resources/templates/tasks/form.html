@@ -112,11 +112,6 @@
             </small>
         </div>
 
-        <!--
-            Plus tard, ajouter categoryId ici
-            quand le contrôleur enverra aussi la liste des catégories.
-        -->
-        <!--
         <div class="form-group">
             <label for="categoryId">Catégorie</label>
             <select id="categoryId" th:field="*{categoryId}">
@@ -127,8 +122,13 @@
                     Catégorie
                 </option>
             </select>
+
+            <small class="error"
+                   th:if="${#fields.hasErrors('categoryId')}"
+                   th:errors="*{categoryId}">
+                Erreur sur la catégorie
+            </small>
         </div>
-        -->
 
         <!-- Boutons d'action -->
         <div class="form-actions">
