@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${appName} + ' - Accueil'">MyTodoList - Accueil</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Feuille de style locale -->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="container">
+
+    <!-- En-tête de la page -->
+    <header class="hero">
+        <h1 th:text="${appName}">MyTodoList</h1>
+        <p>
+            Organisez vos tâches.
+        </p>
+
+        <div class="hero-actions">
+            <a class="button" th:href="@{/tasks}">Voir toutes les tâches</a>
+            <a class="button" th:href="@{/tasks/create}">Créer une tâche</a>
+        </div>
+    </header>
+
+    <!-- Présentation rapide -->
+    <section class="section-block">
+        <h2>À propos de l'application</h2>
+        <p>
+            Cette application permet de gérer une liste de tâches :
+            ajout, recherche, modification, suppression et suivi du statut.
+        </p>
+        <p>
+            La page d'accueil affiche un aperçu de quelques tâches à venir.
+        </p>
+    </section>
+
+    <!-- Aperçu des tâches -->
+    <section class="section-block">
+        <h2>Tâches à venir</h2>
+
+        <!-- Cas où il n'y a aucune tâche -->
+        <div th:if="${#lists.isEmpty(featuredTasks)}" class="alert alert-info">
+            <p>Aucune tâche n'est encore disponible.</p>
+        </div>
+
+        <!-- Tableau si des tâches existent -->
+        <table th:if="${!#lists.isEmpty(featuredTasks)}" class="task-table">
+            <thead>
+            <tr>
+                <th>Titre</th>
+                <th>Description</th>
+                <th>Date d'échéance</th>
+                <th>Statut</th>
+                <th>Catégorie</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="task : ${featuredTasks}">
+                <td th:text="${task.title}">Titre</td>
+                <td th:text="${task.description} ?: 'Aucune description'">Description</td>
+                <td th:text="${task.dueDate}">2026-04-08</td>
+                <td th:text="${task.status}">TODO</td>
+                <td th:text="${task.category != null ? task.category.name : 'Aucune catégorie'}">
+                    Aucune catégorie
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!-- Pied de page simple -->
+    <footer class="section-block">
+        <p>Projet MyTodoList - Évaluation Spring Boot</p>
+    </footer>
+
+</div>
+
+</body>
+</html>
