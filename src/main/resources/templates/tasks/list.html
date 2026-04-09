@@ -69,7 +69,12 @@
 
             <!-- Statut -->
             <td>
-                <span th:text="${task.status.label}">À faire</span>
+                <span class="status-badge"
+                      th:classappend="${task.status.name() == 'TODO'} ? ' status-todo' :
+                                      (${task.status.name() == 'IN_PROGRESS'} ? ' status-in-progress' : ' status-done')"
+                      th:text="${task.status.label}">
+                    À faire
+                </span>
             </td>
 
             <!-- Catégorie -->
